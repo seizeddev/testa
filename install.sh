@@ -16,16 +16,8 @@ echo "==> Installing to $PREFIX/testa"
 mkdir -p "$PREFIX"
 install "$BIN" "$PREFIX/testa"
 
-echo "==> Installing Claude Code skill"
-mkdir -p "$HOME/.claude/skills/testa"
-cp "$DIR/skills/testa/SKILL.md" "$HOME/.claude/skills/testa/SKILL.md"
-
-if command -v claude >/dev/null 2>&1; then
-  echo "==> Registering MCP server with Claude Code"
-  claude mcp add testa -- "$PREFIX/testa" mcp 2>/dev/null \
-    && echo "    registered: claude mcp 'testa'" \
-    || echo "    (already registered or skipped)"
-fi
+echo "==> Installing skill + registering MCP"
+"$PREFIX/testa" setup || true
 
 case ":$PATH:" in
   *":$PREFIX:"*) : ;;

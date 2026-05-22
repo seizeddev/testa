@@ -5,7 +5,7 @@
 class Testa < Formula
   desc "Autonomous iOS Simulator E2E driver for AI agents"
   homepage "https://github.com/seizeddev/testa"
-  url "https://github.com/seizeddev/testa/archive/refs/tags/v0.1.0.tar.gz"
+  url "https://github.com/seizeddev/testa/archive/refs/tags/v0.1.1.tar.gz"
   sha256 "bc71d6cab7aa93678985abb3dd94945502fafb536c62de842fb4f5a24d3de845"
   license "MIT"
   head "https://github.com/seizeddev/testa.git", branch: "main"
@@ -21,12 +21,10 @@ class Testa < Formula
 
   def caveats
     <<~EOS
-      Install the Claude Code skill and register the MCP server:
-        mkdir -p ~/.claude/skills/testa
-        cp #{opt_pkgshare}/skills/testa/SKILL.md ~/.claude/skills/testa/
-        claude mcp add testa -- testa mcp
+      Finish setup (installs the Claude Code skill + registers the MCP server):
+        testa setup
 
-      Boot a simulator, then:  testa info && testa ui
+      Then boot a simulator, and:  testa info && testa ui
     EOS
   end
 

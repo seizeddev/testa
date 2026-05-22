@@ -33,7 +33,7 @@ testa — autonomous iOS Simulator E2E driver for AI agents
     testa record <start [path]|stop>
 
   Target a specific sim with --udid <udid> (default: the booted one).
-  Daemon: testa start | stop | status | info | mcp
+  Setup / daemon: testa setup | start | stop | status | info | mcp
 """
 
 // --- parse a global --udid flag ---
@@ -45,6 +45,44 @@ if let i = rawArgs.firstIndex(of: "--udid"), i + 1 < rawArgs.count {
 }
 let argv = rawArgs
 let cmd = argv.first ?? "help"
+
+// One-shot post-install: install the Claude Code skill + register the MCP server.
+// Works for both Homebrew (skill under <prefix>/share) and source installs.
+func runSetup() {
+    let home = NSHomeDirectory()
+    let skillDir = home + "/.claude/skills/testa"
+    let exe = Client.executablePath()
+    let exeDir = (exe as NSString).deletingLastPathComponent
+    let candidates = [
+        exeDir + "/../share/testa/skills/testa/SKILL.md",
+        exeDir + "/../share/testa/SKILL.md",
+        exeDir + "/../skills/testa/SKILL.md",
+        FileManager.default.currentDirectoryPath + "/skills/testa/SKILL.md",
+    ].map { ($0 as NSString).standardizingPath }
+
+    if let src = candidates.first(where: { FileManager.default.fileExists(atPath: $0) }) {
+        try? FileManager.default.createDirectory(atPath: skillDir, withIntermediateDirectories: true)
+        let dst = skillDir + "/SKILL.md"
+        try? FileManager.default.removeItem(atPath: dst)
+        do { try FileManager.default.copyItem(atPath: src, toPath: dst); out("✓ skill installed → \(dst)") }
+        catch { err("• could not copy skill: \(error.localizedDescription)") }
+    } else {
+        out("• skill file not found near binary (MCP still works)")
+    }
+
+    let p = Process()
+    p.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+    p.arguments = ["claude", "mcp", "add", "testa", "--", exe, "mcp"]
+    let pipe = Pipe(); p.standardOutput = pipe; p.standardError = pipe
+    if (try? p.run()) != nil {
+        p.waitUntilExit()
+        if p.terminationStatus == 0 { out("✓ MCP server registered with Claude Code") }
+        else { out("• register MCP manually:  claude mcp add testa -- \(exe) mcp") }
+    } else {
+        out("• Claude Code CLI not found. Register MCP with:\n    claude mcp add testa -- \(exe) mcp")
+    }
+    out("\nDone. Boot a simulator, then:  testa info && testa ui")
+}
 
 func requireUDID(_ explicit: String?) -> String {
     guard let u = Simctl.resolveUDID(explicit) else {
@@ -74,6 +112,9 @@ case "__daemon":
 
 case "mcp":
     MCP.run()
+
+case "setup":
+    runSetup()
 
 case "help", "-h", "--help":
     out(usage)
