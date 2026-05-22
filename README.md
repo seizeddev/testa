@@ -31,7 +31,7 @@ Built for **React Native / Expo and native SwiftUI** apps on **iOS 26**.
 
 ```
 agent ──► testa (CLI)            ──┐
-agent ──► testa mcp (MCP server) ──┤ Unix socket (~/.testa/daemon.sock, 0600)
+agent ──► testa mcp (MCP server) ──┤ Unix socket (~/.testa/daemon-<udid>.sock, 0600)
                                    ▼
                               testad (warm daemon)
                                    │  Obj-C engine, dlopen'd private frameworks
