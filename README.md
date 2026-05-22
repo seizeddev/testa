@@ -1,11 +1,19 @@
 # Testa
 
+[![CI](https://github.com/seizeddev/testa/actions/workflows/ci.yml/badge.svg)](https://github.com/seizeddev/testa/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+![Platform](https://img.shields.io/badge/platform-macOS%20·%20iOS%2026-lightgrey)
+![Deps](https://img.shields.io/badge/runtime%20deps-zero-success)
+
 **Autonomous iOS-Simulator E2E testing for AI agents.** Testa lets coding agents
 (Claude Code, Codex, Cursor, …) drive a booted iOS Simulator with *real* HID
 touches — including complex gestures — and read the screen via the accessibility
-tree, so they can test apps end-to-end without you babysitting the simulator.
+tree **or on-device OCR**, so they can test apps end-to-end without you
+babysitting the simulator, and **without adding a single `testID`**.
 
 Built for **React Native / Expo and native SwiftUI** apps on **iOS 26**.
+
+![Testa driving the iOS Simulator](assets/demo.gif)
 
 - **Works with zero app setup** — you don't need to add `testID`s. Testa reads
   the accessibility tree (which already exposes visible text for SwiftUI and RN
@@ -117,6 +125,17 @@ verified through the accessibility tree alone:
   `0600`). No TCP, no remote surface.
 - The daemon runs as your user and only controls simulators your user can.
 - No telemetry; nothing leaves your machine.
+
+## Limitations (honest)
+
+- **Icon-only controls with no text and no accessibility label** are ambiguous to
+  any automation — neither the a11y tree nor OCR can name them. Use coordinates,
+  or have the app add an `accessibilityLabel`.
+- The prebuilt-binary path isn't notarized unless you build it with your own
+  Apple Developer ID (`release.sh`). The `git clone` and Homebrew paths build
+  from source, so this doesn't apply to them.
+- iOS Simulator only (by design). Real devices and Android are out of scope.
+- Live FPS video streaming isn't implemented; `testa record` produces H.264 MP4.
 
 ## Status
 

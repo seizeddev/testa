@@ -3,6 +3,14 @@ import Darwin
 
 enum Client {
     static func executablePath() -> String {
+        // The real running binary — reliable however we were invoked (bare PATH
+        // name, relative, or absolute). argv[0] is not trustworthy here.
+        var size: UInt32 = 0
+        _NSGetExecutablePath(nil, &size)
+        var buf = [CChar](repeating: 0, count: Int(size))
+        if _NSGetExecutablePath(&buf, &size) == 0 {
+            return (String(cString: buf) as NSString).resolvingSymlinksInPath
+        }
         let arg0 = CommandLine.arguments[0]
         let abs = (arg0 as NSString).isAbsolutePath
             ? arg0 : FileManager.default.currentDirectoryPath + "/" + arg0
