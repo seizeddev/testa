@@ -71,7 +71,7 @@ export default function App() {
         const zone = g.moveX > 200 ? 'zoneB' : 'zoneA';
         setDropped(zone);
         setStatus('drop:' + zone);
-        Animated.spring(pan, { toValue: { x: 0, y: 0 }, useNativeDriver: false }).start();
+        // Keep the circle where it was dropped (don't snap back to origin).
       },
     })
   ).current;
@@ -120,8 +120,8 @@ export default function App() {
       <View style={s.card}>
         <Text style={s.title}>Drag &amp; drop (drag red circle onto A or B)</Text>
         <View style={s.dragArea}>
-          <View testID="zoneA" accessible accessibilityLabel="A" style={[s.zone, { left: 70 }]}><Text>A</Text></View>
-          <View testID="zoneB" accessible accessibilityLabel="B" style={[s.zone, { left: 220 }]}><Text>B</Text></View>
+          <View testID="zoneA" accessible accessibilityLabel="A" style={[s.zone, { left: 70 }, dropped === 'zoneA' && s.zoneActive]}><Text>A</Text></View>
+          <View testID="zoneB" accessible accessibilityLabel="B" style={[s.zone, { left: 220 }, dropped === 'zoneB' && s.zoneActive]}><Text>B</Text></View>
           <Animated.View
             testID="dragHandle"
             accessible
@@ -162,6 +162,7 @@ const s = StyleSheet.create({
   box: { height: 56, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
   dragArea: { height: 90, justifyContent: 'center' },
   zone: { position: 'absolute', width: 72, height: 72, borderWidth: 2, borderColor: '#2a6df4', borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
+  zoneActive: { borderColor: '#22a559', backgroundColor: 'rgba(34,165,89,0.2)' },
   handle: { width: 60, height: 60, borderRadius: 30, backgroundColor: 'red', alignItems: 'center', justifyContent: 'center' },
   input: { borderWidth: 1, borderColor: '#bbb', borderRadius: 8, padding: 10 },
 });

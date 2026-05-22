@@ -160,9 +160,9 @@ private struct DragDropSection: View {
             ZStack(alignment: .leading) {
                 HStack {
                     Spacer()
-                    ZoneView(label: "A", id: "zoneA")
+                    ZoneView(label: "A", id: "zoneA", active: dropped == "zoneA")
                     Spacer()
-                    ZoneView(label: "B", id: "zoneB")
+                    ZoneView(label: "B", id: "zoneB", active: dropped == "zoneB")
                     Spacer()
                 }
                 Circle()
@@ -181,7 +181,8 @@ private struct DragDropSection: View {
                                 let zone = v.location.x > 200 ? "zoneB" : "zoneA"
                                 dropped = zone
                                 s.status = "drop:\(zone)"
-                                withAnimation { offset = .zero }
+                                // Snap the circle into the chosen zone and keep it there.
+                                withAnimation { offset = CGSize(width: v.location.x - 30, height: 0) }
                             }
                     )
             }
@@ -195,9 +196,11 @@ private struct DragDropSection: View {
 private struct ZoneView: View {
     let label: String
     let id: String
+    var active: Bool = false
     var body: some View {
         RoundedRectangle(cornerRadius: 8)
-            .stroke(Color.blue, lineWidth: 2)
+            .fill(active ? Color.green.opacity(0.25) : Color.clear)
+            .overlay(RoundedRectangle(cornerRadius: 8).stroke(active ? Color.green : Color.blue, lineWidth: 2))
             .frame(width: 72, height: 72)
             .overlay(Text(label))
             .accessibilityIdentifier(id)
