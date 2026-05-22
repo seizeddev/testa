@@ -150,6 +150,22 @@ You do **not** need the app to add `testID`s. Visible text is enough:
 
 Adding `testID` / `accessibilityIdentifier` just makes targeting more precise.
 
+<div align="center"><img src="assets/ocr-demo.gif" alt="Testa driving a Canvas-rendered screen that has zero accessibility, via OCR" width="240"></div>
+
+The bottom row above is drawn with `Canvas` — it exposes **zero accessibility**.
+Most tools (and accessibility-only agents) are blind to it. Testa isn't:
+
+```console
+$ testa ui            # accessibility tree
+… no "Start" / "Settings" / "Profile" — they aren't accessibility elements
+
+$ testa see           # on-device OCR
+"Start" @79,702    "Settings" @200,703    "Profile" @322,702
+
+$ testa tapocr "Settings"
+tapped (ocr) "Settings" @200,703     →  #status = canvas:Settings
+```
+
 ## For AI agents
 
 - **Claude Code** — `testa setup` installs the skill (`skills/testa/SKILL.md`).

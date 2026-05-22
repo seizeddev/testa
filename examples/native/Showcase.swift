@@ -45,7 +45,7 @@ struct ContentView: View {
             }
             DragDropSection(s: s)
             TextSection(s: s)
-            ListSection()
+            CanvasSection(s: s)
             Spacer(minLength: 0)
         }
         .padding(8)
@@ -219,21 +219,32 @@ private struct TextSection: View {
     }
 }
 
-private struct ListSection: View {
+// A Canvas-drawn row of "buttons" with NO accessibility at all — the labels are
+// raster-drawn, not views. `testa ui` sees nothing here; Testa drives it purely
+// via on-device OCR (`testa see` / `testa tapocr "Settings"`).
+private struct CanvasSection: View {
+    @ObservedObject var s: GestureState
+    private let items = ["Start", "Settings", "Profile"]
     var body: some View {
-        Card(title: "List (scroll target)") {
-            ScrollView {
-                VStack(spacing: 0) {
-                    ForEach(0..<20, id: \.self) { i in
-                        HStack { Text("Row \(i)"); Spacer() }
-                            .padding(.vertical, 8)
-                            .accessibilityIdentifier("row-\(i)")
-                        Divider()
+        Card(title: "Canvas — zero accessibility (OCR only)") {
+            GeometryReader { geo in
+                let w = geo.size.width / CGFloat(items.count)
+                Canvas { ctx, _ in
+                    for (i, label) in items.enumerated() {
+                        let rect = CGRect(x: CGFloat(i) * w + 6, y: 8, width: w - 12, height: 56)
+                        ctx.fill(Path(roundedRect: rect, cornerRadius: 10), with: .color(.indigo))
+                        ctx.draw(Text(label).font(.headline).bold().foregroundStyle(.white),
+                                 at: CGPoint(x: rect.midX, y: rect.midY))
                     }
                 }
+                .contentShape(Rectangle())
+                .onTapGesture { loc in
+                    let idx = max(0, min(items.count - 1, Int(loc.x / w)))
+                    s.status = "canvas:\(items[idx])"
+                }
             }
-            .frame(height: 120)
-            .accessibilityIdentifier("scrollList")
+            .frame(height: 72)
+            .accessibilityHidden(true)
         }
     }
 }
