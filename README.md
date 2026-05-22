@@ -54,24 +54,22 @@ agent ──► testa mcp (MCP server) ──┤ Unix socket (~/.testa/daemon.so
 
 ## Install
 
+One line — clone and install (builds a release binary into `~/.local/bin/testa`,
+installs the Claude Code skill, and registers the MCP server):
+
 ```bash
-git clone <this repo> && cd testa
-./install.sh
+git clone https://github.com/seizeddev/testa && cd testa && ./install.sh
 ```
 
-This builds a release binary into `~/.local/bin/testa`, installs the Claude Code
-skill, and registers the MCP server (`claude mcp add testa -- testa mcp`).
+Or via Homebrew (builds from source — no tap, no notarized binary needed):
+
+```bash
+brew install https://raw.githubusercontent.com/seizeddev/testa/main/Formula/testa.rb
+```
 
 Requirements: macOS with Xcode (Xcode 26 / iOS 26 simulators), Swift 6.
-
-Or via Homebrew (builds from source — no notarized binary needed):
-
-```bash
-brew tap YOURNAME/testa && brew install testa
-```
-
-A `Formula/testa.rb` and `release.sh` (universal binary, codesign/notarize when a
-Developer ID is present) are included for publishing.
+A `release.sh` (universal binary; codesigns/notarizes when a Developer ID is
+present) is included for prebuilt distribution.
 
 ## Use
 
@@ -109,8 +107,9 @@ Two example apps with complex gestures double as Testa's regression suite. Each
 mirrors the last recognized gesture into a `#status` element, so gestures are
 verified through the accessibility tree alone:
 
-- `examples/native` — SwiftUI. Build & run: `examples/native/build.sh`.
-- `examples/react-native` — Expo/React Native. See its README.
+- `examples/native` — SwiftUI. Build & run: `examples/native/build.sh`, then
+  `examples/native/e2e.sh` for the gesture regression suite.
+- `examples/rnshowcase` — Expo/React Native. See `TESTA_README.md` there.
 
 ## Security & multi-user
 

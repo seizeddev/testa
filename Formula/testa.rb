@@ -1,15 +1,14 @@
-# Homebrew formula for Testa. Builds from source so no notarized binary is
-# required. Put this in a tap repo (e.g. homebrew-testa) and:
-#   brew tap <you>/testa && brew install testa
-#
-# Update `url`/`sha256` to a tagged release tarball before publishing.
+# Homebrew formula for Testa. Builds from source, so no notarized binary is
+# needed. Install directly (no tap required):
+#   brew install https://raw.githubusercontent.com/seizeddev/testa/main/Formula/testa.rb
+# Bump `url`/`sha256` for each tagged release.
 class Testa < Formula
   desc "Autonomous iOS Simulator E2E driver for AI agents"
-  homepage "https://github.com/YOURNAME/testa"
-  url "https://github.com/YOURNAME/testa/archive/refs/tags/v0.1.0.tar.gz"
-  sha256 "REPLACE_WITH_TARBALL_SHA256"
+  homepage "https://github.com/seizeddev/testa"
+  url "https://github.com/seizeddev/testa/archive/refs/tags/v0.1.0.tar.gz"
+  sha256 "bc71d6cab7aa93678985abb3dd94945502fafb536c62de842fb4f5a24d3de845"
   license "MIT"
-  head "https://github.com/YOURNAME/testa.git", branch: "main"
+  head "https://github.com/seizeddev/testa.git", branch: "main"
 
   depends_on xcode: ["26.0", :build]
   depends_on :macos
