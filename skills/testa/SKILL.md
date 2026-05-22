@@ -50,6 +50,7 @@ swipe <x1 y1 x2 y2>  drag <x1 y1 x2 y2 | fromSel toSel>   dragdrop <…>
 pinch <sel|x y> <scale>     rotate <sel|x y> <radians>
 devices  boot <udid|name>  shutdown <udid|all>
 install <app>  launch <bundle>  terminate <bundle>  apps  open <url>
+logs [bundle] [seconds]   crashes [bundle]    # see why a step failed
 permission <grant|revoke|reset> <service> <bundle>   record <start [path]|stop>
 info  status  start  stop          (target a sim with --udid <udid>)
 ```

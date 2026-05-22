@@ -28,6 +28,8 @@ testa — autonomous iOS Simulator E2E driver for AI agents
     testa devices                   booted simulators
     testa boot <udid|name> | shutdown <udid|all>
     testa install <app> | launch <bundle> | terminate <bundle> | apps
+    testa logs [bundle] [seconds]   recent app console logs
+    testa crashes [bundle]          newest crash report, if any
     testa open <url>                open a deep link / universal link
     testa permission <grant|revoke|reset> <service> <bundle>
     testa record <start [path]|stop>

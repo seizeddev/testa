@@ -10,6 +10,7 @@ final class Daemon {
     var last: Snapshot?
     var recorder: Process?
     var recorderPath: String?
+    var lastBundle: String?
 
     init(sim: TSTSimulator) { self.sim = sim }
 
@@ -71,6 +72,46 @@ final class Daemon {
             prev = sig
             usleep(90 * 1000)
         }
+    }
+
+    // The app's executable (process) name, from its installed Info.plist.
+    func appExecutable(_ bundle: String) -> String? {
+        let (c, path) = Simctl.run(["get_app_container", sim.udid, bundle, "app"])
+        guard c == 0 else { return nil }
+        let plist = path.trimmingCharacters(in: .whitespacesAndNewlines) + "/Info.plist"
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: "/usr/libexec/PlistBuddy")
+        p.arguments = ["-c", "Print CFBundleExecutable", plist]
+        let pipe = Pipe(); p.standardOutput = pipe; p.standardError = Pipe()
+        guard (try? p.run()) != nil else { return nil }
+        let d = pipe.fileHandleForReading.readDataToEndOfFile()
+        p.waitUntilExit()
+        let exe = String(data: d, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines)
+        return (exe?.isEmpty == false) ? exe : nil
+    }
+
+    // Newest crash report (.ips) for the sim, optionally filtered by process name.
+    func latestCrash(matching exe: String?) -> (String?, String) {
+        let home = NSHomeDirectory()
+        let dirs = [
+            "\(home)/Library/Developer/CoreSimulator/Devices/\(sim.udid)/data/Library/Logs/DiagnosticReports",
+            "\(home)/Library/Logs/DiagnosticReports",
+        ]
+        let fm = FileManager.default
+        var candidates: [(String, Date)] = []
+        for dir in dirs {
+            guard let names = try? fm.contentsOfDirectory(atPath: dir) else { continue }
+            for n in names where n.hasSuffix(".ips") || n.hasSuffix(".crash") {
+                if let exe = exe, !n.hasPrefix(exe) { continue }
+                let full = dir + "/" + n
+                let m = (try? fm.attributesOfItem(atPath: full)[.modificationDate] as? Date) ?? nil
+                candidates.append((full, m ?? .distantPast))
+            }
+        }
+        guard let newest = candidates.max(by: { $0.1 < $1.1 })?.0 else { return (nil, "") }
+        let content = (try? String(contentsOfFile: newest, encoding: .utf8)) ?? ""
+        let head = content.split(separator: "\n").prefix(60).joined(separator: "\n")
+        return (newest, head)
     }
 
     // Installed user apps via `simctl listapps` (old-style plist) -> plutil JSON.
@@ -343,7 +384,28 @@ final class Daemon {
 
             case "launch" where !a.isEmpty:
                 let (c, o) = Simctl.run(["launch", sim.udid] + a)
+                if c == 0 { lastBundle = a[0] }
                 return Reply(ok: c == 0, text: o.trimmingCharacters(in: .whitespacesAndNewlines))
+
+            case "logs":
+                var seconds = 20
+                var bundle = lastBundle
+                for x in a { if let n = Int(x) { seconds = n } else { bundle = x } }
+                guard let b = bundle else { return Reply(ok: false, text: "no app launched yet — pass a bundle id: testa logs <bundle> [seconds]") }
+                guard let exe = appExecutable(b) else { return Reply(ok: false, text: "app not installed: \(b)") }
+                let (_, o) = Simctl.run(["spawn", sim.udid, "log", "show", "--style", "compact",
+                                         "--last", "\(seconds)s", "--predicate", "process == \"\(exe)\""])
+                let lines = o.split(separator: "\n", omittingEmptySubsequences: true)
+                    .filter { !$0.contains("getpwuid_r did not find") }
+                    .suffix(120).map { String($0.prefix(300)) }
+                return Reply(ok: true, text: lines.isEmpty ? "(no logs for \(exe) in last \(seconds)s)" : lines.joined(separator: "\n"))
+
+            case "crashes":
+                let bundle = a.first ?? lastBundle
+                let exe = bundle.flatMap { appExecutable($0) }
+                let (path, body) = latestCrash(matching: exe)
+                if path == nil { return Reply(ok: true, text: "(no crash reports\(exe.map { " for \($0)" } ?? ""))") }
+                return Reply(ok: true, text: "\(path!)\n\n\(body)")
 
             case "terminate" where !a.isEmpty:
                 let (c, o) = Simctl.run(["terminate", sim.udid, a[0]])

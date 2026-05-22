@@ -15,6 +15,13 @@ All notable changes to Testa are documented here. Format roughly follows
 - README demo GIF + badges + an honest "Limitations" section.
 - `CONTRIBUTING.md` and this `CHANGELOG.md`.
 
+## [0.1.3] — 2026-05-22
+
+### Added
+- `testa logs [bundle] [seconds]` — recent app console output (via `simctl … log show`).
+- `testa crashes [bundle]` — newest crash report for the app, if any.
+  Both are independent, public-API implementations (no third-party tooling).
+
 ## [0.1.1] — 2026-05-22
 
 ### Added

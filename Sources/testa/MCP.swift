@@ -71,6 +71,17 @@ enum MCP {
             Tool(name: "apps",
                  description: "List installed user app bundle ids.",
                  schema: obj([:])) { _ in ["apps"] },
+            Tool(name: "logs",
+                 description: "Recent app console logs (last N seconds; defaults to the launched app). Use to see why something failed.",
+                 schema: obj(["bundleId": pStr, "seconds": pNum])) { a in
+                     var v = ["logs"]
+                     if let b = str(a, "bundleId") { v.append(b) }
+                     if let s = numStr(a, "seconds") { v.append(s) }
+                     return v
+                 },
+            Tool(name: "crashes",
+                 description: "Newest crash report for the app (if any), with the crash header.",
+                 schema: obj(["bundleId": pStr])) { a in str(a, "bundleId").map { ["crashes", $0] } ?? ["crashes"] },
             Tool(name: "open",
                  description: "Open a URL / deep link / universal link on the simulator.",
                  schema: obj(["url": pStr], required: ["url"])) { a in ["open", str(a, "url") ?? ""] },

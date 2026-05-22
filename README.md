@@ -128,6 +128,7 @@ Act   (sel = eN ref · #identifier · "label")
 App / device
   devices | boot <udid|name> | shutdown <udid|all>
   install <app> | launch <bundle> | terminate <bundle> | apps | open <url>
+  logs [bundle] [seconds] | crashes [bundle]
   permission <grant|revoke|reset> <service> <bundle>
   record <start [path] | stop>
 
@@ -155,7 +156,7 @@ Adding `testID` / `accessibilityIdentifier` just makes targeting more precise.
 - **Any MCP client** (Codex, Cursor, …) — `claude mcp add testa -- testa mcp`.
   Tools: `ui, see, find, scrollTo, tap, tapText, type, setValue, clear, key,
   swipe, drag, dragdrop, longpress, pinch, rotate, screenshot, assert, wait,
-  install, launch, terminate, apps, open, info`.
+  install, launch, terminate, apps, logs, crashes, open, info`.
 
 ## How it works
 
