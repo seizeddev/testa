@@ -26,10 +26,11 @@ single `testID`**.
 
 ## Why Testa
 
-Agents are great at writing iOS apps and terrible at the part that comes next:
-**actually exercising them in the simulator.** Existing tools want you to wire up
-`testID`s everywhere, learn a DSL, or pipe screenshots into a vision model (slow
-and token-hungry). Testa is built for agents from the ground up:
+Agents are great at writing iOS apps and clumsy at the part that comes next:
+**actually exercising them in the simulator.** Testa is built for that — and two
+things set it apart from the rest of the field: it drives screens that expose
+**zero accessibility** (via on-device OCR), and it's a **single, fully-open,
+dependency-free binary**.
 
 - 🧠 **No app setup required.** Reads the accessibility tree, and falls back to
   **Apple Vision OCR** to tap any *visible text* — so it drives canvas, games,
@@ -45,15 +46,17 @@ and token-hungry). Testa is built for agents from the ground up:
 - 📦 **Zero third-party runtime deps.** Talks straight to Apple's `CoreSimulator`,
   `SimulatorKit`, `AccessibilityPlatformTranslation`, Vision and `simctl`.
 
-|  | **Testa** | idb | Appium | Maestro |
-|---|:--:|:--:|:--:|:--:|
-| Built for AI agents (compact text, refs, asserts) | ✅ | — | — | — |
-| Works with **no** `testID`s (OCR fallback) | ✅ | ❌ | ❌ | ❌ |
-| Complex gestures (pinch · rotate · drag-drop) | ✅ | ✅ | ✅ | ⚠️ |
-| MCP server for agents | ✅ | ❌ | ❌ | ❌ |
-| Setup | 1 command | build from src | npm + drivers | install binary |
+|  | **Testa** | Argent | idb | Appium | Maestro |
+|---|:--:|:--:|:--:|:--:|:--:|
+| Agent-native (MCP + token-efficient snapshots) | ✅ | ✅ | ❌ | ❌ | ⚠️ |
+| Drives screens with **zero accessibility** (on-device OCR) | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Pinch · rotate · drag-and-drop · multi-touch | ✅ | ⚠️ | ✅ | ✅ | ⚠️ |
+| Self-contained: one native binary, no Node/SDK runtime | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Fully open source, no proprietary parts | ✅&nbsp;MIT | ⚠️ | ✅ | ✅ | ✅ |
+| Platforms | iOS | iOS · Android | iOS | iOS · Android · web | iOS · Android |
+| Live debugging & profiling (logs · network · RN tree · Instruments) | ❌ | ✅ | ⚠️ | ❌ | ❌ |
 
-<sub>High-level summary as of 2026; all four are good tools — Testa targets the agent-driven, token-sensitive niche.</sub>
+<sub>High-level summary, verified against each project's docs as of 2026. These are all good tools. The closest is <a href="https://github.com/software-mansion/argent">Argent</a> (Software Mansion): broader than Testa (cross-platform, deep debugging & profiling), but accessibility-only (no OCR), Node-based, and Apache-2.0 source <em>plus proprietary binaries</em>. Testa's niche: fully-open, dependency-free, OCR-driven, iOS-focused.</sub>
 
 ## Quick start
 
